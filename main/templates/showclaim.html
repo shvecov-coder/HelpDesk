@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+	<title>Заявка № {{id}}</title>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg bg-primary navbar-dark text-white p-1">
+		<span class="navbar-brand m-0 p-0 h1" href="#">HelpDesk Alpha v0.1</span>
+
+		<div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+			<ul class="navbar-nav">
+				{% if user.is_authenticated %}
+					<li class="nav-item">
+						<a href="#" class="nav-link disable">{{ user.first_name }} {{user.last_name}}</a>
+					</li>
+					<li class="nav-item">
+						<a href="/accounts/logout/" class="nav-link disable">Log out</a>
+					</li>
+				{% else %}
+					<li><a href="/accounts/login" class="nav-link disable">Sign in</a></li>
+				{% endif %}
+			</ul>
+		</div>
+	</nav>
+
+	<div class="container-fluid mt-2">
+		<div class="row">
+			<div class="col-1">
+				Тема:
+			</div>
+			<div class="col-5">
+				{{claim.topic}}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-1">
+				Создатель:
+			</div>
+			<div class="col-5">
+				{{lastname}} {{firstname}}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-1">
+				Кабинет:
+			</div>
+			<div class="col-5">
+				{{claim.cabinet}}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-1">
+				Описание:
+			</div>
+			<div class="col-5">
+				{{claim.text}}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-1">
+				Статус:
+			</div>
+			<div class="col-5">
+				{% if claim.status == 0 %}
+				Новая
+				{% endif %}
+				{% if claim.status == 1 %}
+				В работе
+				{% endif %}
+				{% if claim.status == 2 %}
+				Готово
+				{% endif %}
+			</div>
+		</div>
+		{% if claim.assigned %}
+		<div class="row">
+			<div class="col-1">
+				Исполнитель:
+			</div>
+			<div class="col-5">
+				{{claim.assigned_lastname}} {{claim.assigned_firstname}}
+			</div>
+		</div>
+		{% endif %}
+		{% if user.username == "admin" %}
+		<div class="row">
+			<div class="col-1">
+				Исполнитель:
+			</div>
+			<div class="col-5">
+				<form name="assigned" method="POST">
+				{% csrf_token %}
+				<select name="assigned" aria-label="Default select example">
+  					<option selected>Выберите исполнителя</option>
+  					{% for assig in assigneds %}
+  					<option value="{{assig.username}}">{{assig.last_name}} {{assig.first_name}}</option>
+  					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<div class="btn-group mt-3">
+			<button type="submit" class="btn btn-outline-primary">Назначить</button>
+		</div>
+		</form>
+		{% endif %}
+
+		{% if claim.assigned == user.username %}
+		<form name="success" method="POST">
+				{% csrf_token %}
+				<input type="hidden" name="success" value="success">
+		<div class="btn-group mt-3">
+			<button type="submit" class="btn btn-outline-success">Выполнено</button>
+		</div>
+		</form>
+		{% endif %}
+	</div>
+</body>
+</html>
